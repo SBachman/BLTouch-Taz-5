@@ -511,7 +511,7 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING LULZBOT_X_MIN_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING LULZBOT_Y_MIN_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING LULZBOT_Z_MIN_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING LULZBOT_X_MAX_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING LULZBOT_Y_MAX_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING LULZBOT_Z_MAX_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
@@ -711,8 +711,8 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_X_PROBE_OFFSET_FROM_EXTRUDER  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_Y_PROBE_OFFSET_FROM_EXTRUDER  // Y offset: -front +behind [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_X_PROBE_OFFSET_FROM_EXTRUDER -32 // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_Y_PROBE_OFFSET_FROM_EXTRUDER -30 // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_Z_PROBE_OFFSET_FROM_EXTRUDER   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
@@ -910,7 +910,7 @@
 #elif defined(LULZBOT_AUTO_BED_LEVELING_BILINEAR)
 #define AUTO_BED_LEVELING_BILINEAR
 #endif
-//#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
@@ -949,14 +949,14 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X LULZBOT_GRID_MAX_POINTS_X
-  #define GRID_MAX_POINTS_Y LULZBOT_GRID_MAX_POINTS_Y
+  #define GRID_MAX_POINTS_X 4
+  #define GRID_MAX_POINTS_Y 4
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION LULZBOT_LEFT_PROBE_BED_POSITION
-  #define RIGHT_PROBE_BED_POSITION LULZBOT_RIGHT_PROBE_BED_POSITION
-  #define FRONT_PROBE_BED_POSITION LULZBOT_FRONT_PROBE_BED_POSITION
-  #define BACK_PROBE_BED_POSITION LULZBOT_BACK_PROBE_BED_POSITION
+  #define LEFT_PROBE_BED_POSITION 20
+  #define RIGHT_PROBE_BED_POSITION 260
+  #define FRONT_PROBE_BED_POSITION 20
+  #define BACK_PROBE_BED_POSITION 240
 
   // The Z probe minimum outer margin (to validate G29 parameters).
   #define MIN_PROBE_EDGE 10
@@ -970,7 +970,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID
+    #define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1798,16 +1798,15 @@
  * Sponsored by TrinityLabs, Reworked by codexmas
  */
 
-/**
- * Number of servos
- *
- * For some servo-related options NUM_SERVOS will be set automatically.
- * Set this manually if there are extra servos needing manual control.
- * Leave undefined or set to 0 to entirely disable the servo subsystem.
- */
-#if defined(LULZBOT_NUM_SERVOS)
-#define NUM_SERVOS LULZBOT_NUM_SERVOS // Servo index starts with 0 for M280 command
-#endif
+// Number of servos
+//
+// If you select a configuration below, this will receive a default value and does not need to be set manually
+// set it manually if you have more servos than extruders and wish to manually control some
+// leaving it undefined or defining as 0 will disable the servo subsystem
+// If unsure, leave commented / disabled
+//
+
+#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
 
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
