@@ -2692,8 +2692,8 @@ void kill_screen(const char* lcd_msg) {
               lcd_bed_leveling
             #endif
           );
-    #elif PLANNER_LEVELING && DISABLED(PROBE_MANUALLY)
-      MENU_ITEM(gcode, MSG_BED_LEVELING, LULZBOT_MENU_BED_LEVELING_GCODE);
+//    #elif PLANNER_LEVELING && DISABLED(PROBE_MANUALLY)
+//causes error      MENU_ITEM(gcode, MSG_BED_LEVELING, LULZBOT_MENU_BED_LEVELING_GCODE);
     #endif
 
     #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)

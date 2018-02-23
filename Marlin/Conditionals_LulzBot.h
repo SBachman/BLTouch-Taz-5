@@ -1488,29 +1488,6 @@
     #define LULZBOT_REHOME_BEFORE_REWIPE
 #endif
 
-#define LULZBOT_PROBE_Z_WITH_REWIPE(speed) \
-    /* do_probe_move returns true when it fails to hit an endstop, meaning we need to rewipe */ \
-    for(int rewipes = 0; do_probe_move(LULZBOT_BED_PROBE_MIN, speed); rewipes++) { \
-        if(rewipes >= LULZBOT_NUM_REWIPES) {          /* max of tries */ \
-            SERIAL_ERRORLNPGM("PROBE FAIL CLEAN NOZZLE"); /* cura listens for this message specifically */ \
-            LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);   /* use a more friendly message on the LCD */ \
-            BUZZ(25, 880); BUZZ(50, 0);               /* play tone */ \
-            BUZZ(25, 880); BUZZ(50, 0); \
-            BUZZ(25, 880); BUZZ(50, 0); \
-            do_blocking_move_to_z(100, MMM_TO_MMS(Z_PROBE_SPEED_FAST)); /* raise head */ \
-            current_position[E_AXIS] = 0;             /* prime nozzle at 75 mm/sec */ \
-            planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 75./60, active_extruder); \
-            sync_plan_position_e(); \
-            stepper.synchronize(); \
-            kill(PSTR(MSG_ERR_PROBING_FAILED));       /* stop print job */ \
-            return NAN;                               /* abort the leveling in progress */ \
-        } \
-        SERIAL_ERRORLNPGM(MSG_REWIPE); \
-        LCD_MESSAGEPGM(MSG_REWIPE); \
-        do_blocking_move_to_z(10, MMM_TO_MMS(speed)); /* raise nozzle */ \
-        Nozzle::clean(0, 12, 0, 0);                   /* wipe nozzle */ \
-    }
-
 /******************************** MOTOR CURRENTS *******************************/
 
 // Values for XYZ vary by printer model, values for E vary by toolhead.
