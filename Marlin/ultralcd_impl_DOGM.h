@@ -44,9 +44,9 @@
  */
 #include "ultralcd.h"
 
-#if ENABLED(LULZBOT_MODERN_UI)
+#if ENABLED(LULZBOT_LIGHTWEIGHT_UI)
   typedef const __FlashStringHelper *progmem_str;
-  #include "ultralcd_impl_st7920_lite_status_screen_impl.h"
+  #include "status_screen_lite_ST7920.h"
 #endif
 
 #if ENABLED(U8GLIB_ST7920)
@@ -370,7 +370,7 @@ static void lcd_implementation_init() {
 
 // The kill screen is displayed for unrecoverable conditions
 void lcd_kill_screen() {
-  #if ENABLED(LULZBOT_MODERN_UI)
+  #if ENABLED(LULZBOT_LIGHTWEIGHT_UI)
     ST7920_Lite_Status_Screen::clear_text_buffer();
   #endif
   u8g.firstPage();
@@ -495,7 +495,7 @@ inline void lcd_implementation_status_message(const bool blink) {
 
 //#define DOGM_SD_PERCENT
 
-#if !defined(LULZBOT_MODERN_UI)
+#if !defined(LULZBOT_LIGHTWEIGHT_UI)
 static void lcd_implementation_status_screen() {
 
   const bool blink = lcd_blink();
@@ -769,7 +769,7 @@ static void lcd_implementation_status_screen() {
     #endif
   }
 }
-#endif // LULZBOT_MODERN_UI
+#endif // LULZBOT_LIGHTWEIGHT_UI
 
 #if ENABLED(ULTIPANEL)
 

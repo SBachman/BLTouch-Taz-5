@@ -360,6 +360,11 @@
   #include "AO_FT810_UI_Screens.h"
 #endif
 
+LULZBOT_EXECUTE_IMMEDIATE_DECL
+LULZBOT_G29_WITH_RETRY_DECL
+LULZBOT_BED_LEVELING_DECL
+LULZBOT_BACKLASH_MEASUREMENT_DECL
+
 bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
@@ -520,7 +525,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 // Buzzer - I2C on the LCD or a BEEPER_PIN
 #if ENABLED(LCD_USE_I2C_BUZZER)
   #define BUZZ(d,f) lcd_buzz(d, f)
-#elif PIN_EXISTS(BEEPER)
+#elif PIN_EXISTS(BEEPER) || defined(LULZBOT_USE_TOUCH_UI)
   Buzzer buzzer;
   #define BUZZ(d,f) buzzer.tone(d, f)
 #else
@@ -735,7 +740,11 @@ void stop();
 
 void get_available_commands();
 void process_next_command();
+#if defined(LULZBOT_EXECUTE_IMMEDIATE_IMPL)
+void process_parsed_command(bool printok = true);
+#else
 void process_parsed_command();
+#endif
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -2232,11 +2241,8 @@ static void clean_up_after_endstop_or_probe_move() {
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
       // Do a first probe at the fast speed
-      #if defined(LULZBOT_PROBE_Z_WITH_REWIPE)
-      LULZBOT_PROBE_Z_WITH_REWIPE(Z_PROBE_SPEED_FAST);
-      #else
-      if (do_probe_move(-10, Z_PROBE_SPEED_FAST)) return NAN;
-      #endif
+      //if (do_probe_move(LULZBOT_BED_PROBE_MIN, Z_PROBE_SPEED_FAST)) return NAN;
+      LULZBOT_DO_PROBE_MOVE(Z_PROBE_SPEED_FAST);
 
       float first_probe_z = current_position[Z_AXIS];
 
@@ -2268,11 +2274,9 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
         // move down slowly to find bed
-        #if defined(LULZBOT_PROBE_Z_WITH_REWIPE)
-        LULZBOT_PROBE_Z_WITH_REWIPE(Z_PROBE_SPEED_SLOW);
-        #else
-        if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
-        #endif
+        //if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
+        LULZBOT_DO_PROBE_MOVE(Z_PROBE_SPEED_SLOW);
+        LULZBOT_BACKLASH_MEASUREMENT
 
     #if MULTIPLE_PROBING > 2
         probes_total += current_position[Z_AXIS];
@@ -2388,11 +2392,13 @@ static void clean_up_after_endstop_or_probe_move() {
 
     feedrate_mm_s = old_feedrate_mm_s;
 
-    if (isnan(measured_z)) {
-      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
-    }
+    #if !defined(LULZBOT_G29_WITH_RETRY)
+      if (isnan(measured_z)) {
+        LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
+        SERIAL_ERROR_START();
+        SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
+      }
+    #endif
 
     return measured_z;
   }
@@ -5075,6 +5081,8 @@ void home_all_axes() { gcode_G28(true); }
 
               incremental_LSF(&lsf_results, xProbe, yProbe, measured_z);
 
+              LULZBOT_BED_LEVELING_POINT(abl_probe_index, xProbe, yProbe, measured_z)
+
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
               z_values[xCount][yCount] = measured_z + zoffset;
@@ -5182,6 +5190,8 @@ void home_all_axes() { gcode_G28(true); }
         mean /= abl2;
 
         if (verbose_level) {
+          LULZBOT_BED_LEVELING_SUMMARY
+
           SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
           SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
           SERIAL_PROTOCOLPGM(" b: ");
@@ -9707,6 +9717,10 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
+#if defined(LULZBOT_BACKLASH_COMPENSATION_GCODE)
+  LULZBOT_BACKLASH_COMPENSATION_GCODE
+#endif
+
 #if HAS_LEVELING
   /**
    * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
@@ -11716,7 +11730,11 @@ inline void gcode_T(const uint8_t tmp_extruder) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void process_parsed_command() {
+void process_parsed_command(
+#if defined(LULZBOT_EXECUTE_IMMEDIATE_IMPL)
+  bool printok
+#endif
+) {
   KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
@@ -11812,9 +11830,11 @@ void process_parsed_command() {
       #if HAS_LEVELING
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
-          LULZBOT_ENABLE_PROBE_PINS(true);
-          gcode_G29();
-          LULZBOT_ENABLE_PROBE_PINS(false);
+          #if defined(LULZBOT_G29_COMMAND)
+            LULZBOT_G29_COMMAND
+          #else
+            gcode_G29();
+          #endif
           break;
       #endif // HAS_LEVELING
 
@@ -12365,6 +12385,12 @@ void process_parsed_command() {
           break;
       #endif
 
+      #if defined(LULZBOT_BACKLASH_COMPENSATION_GCODE)
+        case 425: // M420: Enable/Disable Backlash Compensation
+          gcode_M425();
+          break;
+      #endif
+
       #if HAS_MESH
         case 421: // M421: Set a Mesh Bed Leveling Z coordinate
           gcode_M421();
@@ -12578,6 +12604,9 @@ void process_parsed_command() {
 
   KEEPALIVE_STATE(NOT_BUSY);
 
+  #if defined(LULZBOT_EXECUTE_IMMEDIATE_IMPL)
+  if(printok)
+  #endif
   ok_to_send();
 }
 
@@ -14379,7 +14408,9 @@ void kill(const char* lcd_msg) {
   thermalManager.disable_all_heaters();
   disable_all_steppers();
 
-  #if ENABLED(ULTRA_LCD) || ENABLED(LULZBOT_USE_TOUCH_UI)
+  #if ENABLED(LULZBOT_USE_TOUCH_UI)
+    Marlin_LCD_API::onPrinterKilled(lcd_msg);
+  #elif ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
@@ -14673,15 +14704,6 @@ void setup() {
     #endif
   #endif
 
-  #if defined(LULZBOT_ENDSTOPS_ALWAYS_ON_DEFAULT_WORKAROUND)
-    endstops.enable_globally(
-    #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-      true
-    #else
-      false
-    #endif
-    );
-  #endif
   #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
     OUT_WRITE(LCD_PINS_RS, LOW);
@@ -14757,3 +14779,6 @@ void loop() {
   endstops.report_state();
   idle();
 }
+
+LULZBOT_G29_WITH_RETRY_IMPL
+LULZBOT_EXECUTE_IMMEDIATE_IMPL

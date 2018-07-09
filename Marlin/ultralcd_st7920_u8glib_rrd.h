@@ -190,12 +190,12 @@ class U8GLIB_ST7920_128X64_RRD : public U8GLIB {
   U8GLIB_ST7920_128X64_RRD(uint8_t dummy) : U8GLIB(&u8g_dev_st7920_128x64_rrd_sw_spi) { UNUSED(dummy); }
 };
 
-#if ENABLED(LULZBOT_MODERN_UI)
+#if ENABLED(LULZBOT_LIGHTWEIGHT_UI)
   typedef const __FlashStringHelper *progmem_str;
 
   // We have to include the code for the lightweight UI here
   // as it relies on macros that are only defined in this file.
-  #include "ultralcd_impl_st7920_lite_status_screen_impl_spi.h"
+  #include "status_screen_lite_ST7920_spi.h"
 #endif
 
 #pragma GCC reset_options

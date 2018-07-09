@@ -138,7 +138,10 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 uint16_t max_display_update_time = 0;
 
 #if ENABLED(DOGLCD)
-  bool drawing_screen = false;
+  bool drawing_screen, // = false
+       first_page;
+#else
+  constexpr bool first_page = true;
 #endif
 
 #if ENABLED(DAC_STEPPER_CURRENT)
@@ -159,6 +162,9 @@ uint16_t max_display_update_time = 0;
   #if HAS_POWER_SWITCH
     extern bool powersupply_on;
   #endif
+
+  bool no_reentry = false;
+  constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
 
   ////////////////////////////////////////////
   ///////////////// Menu Tree ////////////////
@@ -356,22 +362,21 @@ uint16_t max_display_update_time = 0;
    *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
    *   _menuLineNr is the menu item to draw and process
    *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
-   *   _countedItems is the total number of items in the menu (after one call)
+   *   screen_items is the total number of items in the menu (after one call)
    */
   #define START_SCREEN_OR_MENU(LIMIT) \
     ENCODER_DIRECTION_MENUS(); \
     ENCODER_RATE_MULTIPLY(false); \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
-    static int8_t _countedItems = 0; \
-    int8_t encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); \
-    if (_countedItems > 0 && encoderLine >= _countedItems - (LIMIT)) { \
-      encoderLine = max(0, _countedItems - (LIMIT)); \
+    if (first_page) encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); \
+    if (screen_items > 0 && encoderLine >= screen_items - (LIMIT)) { \
+      encoderLine = max(0, screen_items - (LIMIT)); \
       encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
     }
 
   #define SCREEN_OR_MENU_LOOP() \
     int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - (TALL_FONT_CORRECTION); _lcdLineNr++, _menuLineNr++) { \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < menu_bottom; _lcdLineNr++, _menuLineNr++) { \
       _thisItemNr = 0
 
   /**
@@ -382,28 +387,22 @@ uint16_t max_display_update_time = 0;
    *               Scroll as-needed to keep the selected line in view.
    */
   #define START_SCREEN() \
-    START_SCREEN_OR_MENU(LCD_HEIGHT - (TALL_FONT_CORRECTION)); \
-    encoderTopLine = encoderLine; \
+    scroll_screen(menu_bottom, false); \
     bool _skipStatic = false; \
     SCREEN_OR_MENU_LOOP()
 
   #define START_MENU() \
-    START_SCREEN_OR_MENU(1); \
-    screen_changed = false; \
-    NOMORE(encoderTopLine, encoderLine); \
-    if (encoderLine >= encoderTopLine + LCD_HEIGHT - (TALL_FONT_CORRECTION)) { \
-      encoderTopLine = encoderLine - (LCD_HEIGHT - (TALL_FONT_CORRECTION) - 1); \
-    } \
+    scroll_screen(1, true); \
     bool _skipStatic = true; \
     SCREEN_OR_MENU_LOOP()
 
   #define END_SCREEN() \
     } \
-    _countedItems = _thisItemNr
+    screen_items = _thisItemNr
 
   #define END_MENU() \
     } \
-    _countedItems = _thisItemNr; \
+    screen_items = _thisItemNr; \
     UNUSED(_skipStatic)
 
   ////////////////////////////////////////////
@@ -587,8 +586,10 @@ uint16_t max_display_update_time = 0;
     if (screen_history_depth > 0) {
       --screen_history_depth;
       lcd_goto_screen(
-        screen_history[screen_history_depth].menu_function,
-        screen_history[screen_history_depth].encoder_position
+        screen_history[screen_history_depth].menu_function
+        #if !defined(LULZBOT_RESET_SELECTION_TO_FIRST_ON_MENU_BACK)
+        ,screen_history[screen_history_depth].encoder_position
+        #endif
       );
     }
     else
@@ -598,6 +599,29 @@ uint16_t max_display_update_time = 0;
   void lcd_goto_previous_menu_no_defer() {
     defer_return_to_status = false;
     lcd_goto_previous_menu();
+  }
+
+  /**
+   * Scrolling for menus and other line-based screens
+   */
+  int8_t encoderLine, screen_items;
+  void scroll_screen(const uint8_t limit, const bool is_menu) {
+    if (encoderPosition > 0x8000) encoderPosition = 0;
+    if (first_page) {
+      encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM);
+      screen_changed = false;
+    }
+    if (screen_items > 0 && encoderLine >= screen_items - limit) {
+      encoderLine = max(0, screen_items - limit);
+      encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM);
+    }
+    if (is_menu) {
+      NOMORE(encoderTopLine, encoderLine);
+      if (encoderLine >= encoderTopLine + menu_bottom)
+        encoderTopLine = encoderLine - menu_bottom + 1;
+    }
+    else
+      encoderTopLine = encoderLine;
   }
 
 #endif // ULTIPANEL
@@ -1040,6 +1064,9 @@ void kill_screen(const char* lcd_msg) {
     START_MENU();
     MENU_BACK(MSG_MAIN);
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    #if defined(LULZBOT_MENU_AXIS_LEVELING_GCODE)
+      MENU_ITEM(gcode, _UxGT("Level X Axis"), PSTR(LULZBOT_MENU_AXIS_LEVELING_GCODE));
+    #endif
     #if defined(LULZBOT_MENU_BED_LEVELING_GCODE)
     if (!thermalManager.tooColdToExtrude(active_extruder)) {
       MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR(LULZBOT_MENU_BED_LEVELING_GCODE));
@@ -1248,7 +1275,7 @@ void kill_screen(const char* lcd_msg) {
           }
         }
         if (lcdDrawUpdate) {
-          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), LULZBOT_ZOFFSET_PRECISION(zprobe_zoffset));
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
             _lcd_zoffset_overlay_gfx(zprobe_zoffset);
           #endif
@@ -2685,6 +2712,7 @@ void kill_screen(const char* lcd_msg) {
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
+      #if !defined(LULZBOT_HIDE_LCD_BED_LEVELING)
           MENU_ITEM(submenu, MSG_BED_LEVELING,
             #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
               _lcd_goto_bed_leveling
@@ -2692,8 +2720,9 @@ void kill_screen(const char* lcd_msg) {
               lcd_bed_leveling
             #endif
           );
-//    #elif PLANNER_LEVELING && DISABLED(PROBE_MANUALLY)
-//causes error      MENU_ITEM(gcode, MSG_BED_LEVELING, LULZBOT_MENU_BED_LEVELING_GCODE);
+      #endif
+    #elif PLANNER_LEVELING && DISABLED(PROBE_MANUALLY) && defined(LULZBOT_MENU_BED_LEVELING_GCODE)
+      MENU_ITEM(gcode, MSG_BED_LEVELING, LULZBOT_MENU_BED_LEVELING_GCODE);
     #endif
 
     #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
@@ -2963,7 +2992,11 @@ void kill_screen(const char* lcd_msg) {
    */
 
   void _lcd_move_xyz(const char* name, AxisEnum axis) {
-    if (lcd_clicked) { return lcd_goto_previous_menu(); }
+    #if defined(LULZBOT_MOVE_AXIS_LCD_TIMER_WORKAROUND)
+      if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
+    #else
+      if (lcd_clicked) { return lcd_goto_previous_menu(); }
+    #endif
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition && !processing_manual_move) {
       refresh_cmd_timeout();
@@ -3048,7 +3081,11 @@ void kill_screen(const char* lcd_msg) {
       int8_t eindex=-1
     #endif
   ) {
-    if (lcd_clicked) { return lcd_goto_previous_menu(); }
+    #if defined(LULZBOT_MOVE_AXIS_LCD_TIMER_WORKAROUND)
+      if (lcd_clicked) { return lcd_goto_previous_menu_no_defer(); }
+    #else
+      if (lcd_clicked) { return lcd_goto_previous_menu(); }
+    #endif
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
       if (!processing_manual_move) {
@@ -4610,7 +4647,11 @@ void kill_screen(const char* lcd_msg) {
    * Menu actions
    *
    */
-  void _menu_action_back() { lcd_goto_previous_menu(); }
+  #if defined(LULZBOT_MOVE_AXIS_LCD_TIMER_WORKAROUND)
+  void _menu_action_back() {lcd_goto_previous_menu_no_defer(); }
+  #else
+  void _menu_action_back() {lcd_goto_previous_menu(); }
+  #endif
   void menu_action_submenu(screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
   void menu_action_gcode(const char* pgcode) { enqueue_and_echo_commands_P(pgcode); }
   void menu_action_function(screenFunc_t func) { (*func)(); }
@@ -4969,16 +5010,17 @@ void lcd_update() {
       #endif
 
       #if ENABLED(DOGLCD)
-        #if defined(LULZBOT_MODERN_UI)
+        #if defined(LULZBOT_LIGHTWEIGHT_UI)
         LULZBOT_ABOUT_TO_DRAW_SCREEN(currentScreen, lcd_status_screen)
         #endif
         if (!drawing_screen) {                        // If not already drawing pages
           u8g.firstPage();                            // Start the first page
-          drawing_screen = 1;                         // Flag as drawing pages
+          drawing_screen = first_page = true;         // Flag as drawing pages
         }
         lcd_setFont(FONT_MENU);                       // Setup font for every page draw
         u8g.setColorIndex(1);                         // And reset the color
         CURRENTSCREEN();                              // Draw and process the current screen
+        first_page = false;
 
         // The screen handler can clear drawing_screen for an action that changes the screen.
         // If still drawing and there's another page, update max-time and return now.

@@ -30,7 +30,7 @@
     #define CLCD_MOD_RESET                 93                           // PB2 J20 Pin-8
 #endif
 
-#if defined(LULZBOT_Gladiola_Mini_CLCD)                                 // MINI RAMBO   P1 HEADER  +5V Pin-10  GND Pin-9
+#if LULZBOT_MOTHERBOARD == BOARD_MINIRAMBO                              // MINI RAMBO   P1 HEADER  +5V Pin-10  GND Pin-9
     #define CLCD_BB_SPI_SCLK               71                           // PG3 P1 Pin-8
     #define CLCD_BB_SPI_MOSI               85                           // PH7 P1 Pin-7
     #define CLCD_BB_SPI_CS                 70                           // PG4 P1 Pin-6
@@ -41,7 +41,7 @@
     #define CLCD_AUX_2                     84                           // PH2 P1 Pin-1
 #endif
 
-#if defined(LULZBOT_Hibiscus_Mini2_CLCD)                           // EINSY        P1 HEADER  +5V Pin-1  GND Pin-2
+#if LULZBOT_MOTHERBOARD == BOARD_EINSYRAMBO                             // EINSY        P1 HEADER  +5V Pin-1  GND Pin-2
     #define CLCD_BB_SPI_SCLK               71                           // PG3 P1 Pin-3
     #define CLCD_BB_SPI_MOSI               85                           // PH7 P1 Pin-4
     #define CLCD_BB_SPI_CS                 70                           // PG4 P1 Pin-5

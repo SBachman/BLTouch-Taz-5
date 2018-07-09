@@ -404,6 +404,8 @@ class Planner {
 
     #endif
 
+    LULZBOT_BACKLASH_COMPENSATION_DECL
+
     /**
      * Planner::_buffer_steps
      *

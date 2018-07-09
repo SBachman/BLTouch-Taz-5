@@ -1211,7 +1211,7 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
-  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+  #define NOZZLE_PARK_POINT LULZBOT_NOZZLE_PARK_POINT
   #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
@@ -1275,7 +1275,9 @@
   #define NOZZLE_CLEAN_CIRCLE_MIDDLE NOZZLE_CLEAN_START_POINT
 
   // Moves the nozzle to the initial position
-  #define NOZZLE_CLEAN_GOBACK
+  #if defined(LULZBOT_NOZZLE_CLEAN_GOBACK)
+    #define NOZZLE_CLEAN_GOBACK
+  #endif
 #endif
 
 /**
@@ -1293,7 +1295,7 @@
  *   M76 - Pause the print job timer
  *   M77 - Stop the print job timer
  */
-#define PRINTJOB_TIMER_AUTOSTART
+//#define PRINTJOB_TIMER_AUTOSTART LULZBOT_PRINTJOB_TIMER_AUTOSTART_DISABLED
 
 /**
  * Print Counter

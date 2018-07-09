@@ -30,6 +30,10 @@
 
 #include "MarlinConfig.h"
 
+#if ENABLED(LULZBOT_USE_TOUCH_UI)
+  #include "AO_UI_Marlin_LCD_API.h"
+#endif
+
 #define TONE_QUEUE_LENGTH 4
 
 /**
@@ -128,7 +132,11 @@ class Buzzer {
         this->state.endtime = now + this->state.tone.duration;
 
         if (this->state.tone.frequency > 0) {
-          #if ENABLED(SPEAKER)
+          #if ENABLED(LULZBOT_USE_TOUCH_UI)
+            CRITICAL_SECTION_START;
+            Marlin_LCD_API::onPlayTone(this->state.tone.frequency, this->state.tone.duration);
+            CRITICAL_SECTION_END;
+          #elif ENABLED(SPEAKER)
             CRITICAL_SECTION_START;
             ::tone(BEEPER_PIN, this->state.tone.frequency, this->state.tone.duration);
             CRITICAL_SECTION_END;

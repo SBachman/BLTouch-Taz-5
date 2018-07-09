@@ -280,22 +280,22 @@ namespace FT810 {
 // OPTIONS
 
 namespace FTDI {
-  const uint16_t OPT_3D          =     0;
-  const uint16_t OPT_RGB565      =     0;
-  const uint16_t OPT_MONO        =     1;
-  const uint16_t OPT_NODL        =     2;
-  const uint16_t OPT_FLAT        =   256;
-  const uint16_t OPT_SIGNED      =   256;
-  const uint16_t OPT_CENTERX     =   512;
-  const uint16_t OPT_CENTERY     =  1024;
-  const uint16_t OPT_CENTER      =  1536;
-  const uint16_t OPT_RIGHTX      =  2048;
-  const uint16_t OPT_NOBACK      =  4096;
-  const uint16_t OPT_NOTICKS     =  8192;
-  const uint16_t OPT_NOHM        = 16384;
-  const uint16_t OPT_NOPOINTER   = 16384;
-  const uint16_t OPT_NOSECS      = 32768;
-  const uint16_t OPT_NOHANDS     = 49152;
+  const uint16_t OPT_3D          = 0x0000;
+  const uint16_t OPT_RGB565      = 0x0000;
+  const uint16_t OPT_MONO        = 0x0001;
+  const uint16_t OPT_NODL        = 0x0002;
+  const uint16_t OPT_FLAT        = 0x0100;
+  const uint16_t OPT_SIGNED      = 0x0100;
+  const uint16_t OPT_CENTERX     = 0x0200;
+  const uint16_t OPT_CENTERY     = 0x0400;
+  const uint16_t OPT_CENTER      = (OPT_CENTERX | OPT_CENTERY);
+  const uint16_t OPT_RIGHTX      = 0x0800;
+  const uint16_t OPT_NOBACK      = 0x1000;
+  const uint16_t OPT_NOTICKS     = 0x2000;
+  const uint16_t OPT_NOHM        = 0x4000;
+  const uint16_t OPT_NOPOINTER   = 0x4000;
+  const uint16_t OPT_NOSECS      = 0x8000;
+  const uint16_t OPT_NOHANDS     = (OPT_NOPOINTER | OPT_NOSECS);
 }
 
 // GPIO Bits
@@ -348,12 +348,21 @@ namespace FTDI_LCD_480x272 {
   const int Pclk    =    5;
   const int Clksel  = 0x44;
 
-  const uint32_t default_transform_a = 0x00008100;
-  const uint32_t default_transform_b = 0x00000000;
-  const uint32_t default_transform_c = 0xFFF18000;
-  const uint32_t default_transform_d = 0x00000000;
-  const uint32_t default_transform_e = 0xFFFFB100;
-  const uint32_t default_transform_f = 0x0120D000;
+  #if defined(LCD_PORTRAIT)
+    const uint32_t default_transform_a = 0xFFFFFEA3;
+    const uint32_t default_transform_b = 0xFFFFB05D;
+    const uint32_t default_transform_c = 0x012C5254;
+    const uint32_t default_transform_d = 0xFFFF8303;
+    const uint32_t default_transform_e = 0xFFFFFDF8;
+    const uint32_t default_transform_f = 0x01F32984;
+  #else
+    const uint32_t default_transform_a = 0x00008100;
+    const uint32_t default_transform_b = 0x00000000;
+    const uint32_t default_transform_c = 0xFFF18000;
+    const uint32_t default_transform_d = 0x00000000;
+    const uint32_t default_transform_e = 0xFFFFB100;
+    const uint32_t default_transform_f = 0x0120D000;
+  #endif
 }
 
 // GLOBAL LCD REGISTER SET VALUES FOR 800x480 DISPLAY
@@ -706,6 +715,8 @@ namespace FTDI {
 
   enum note_t {
     END_SONG                                        = 0x00,
+    REST                                            = 0x00,
+    NOTE_C3                                         = 0x32,
     NOTE_D3                                         = 0x33,
     NOTE_D3S                                        = 0x34,
     NOTE_F3                                         = 0x35,
@@ -723,7 +734,8 @@ namespace FTDI {
     NOTE_F4                                         = 0x41,
     NOTE_F4S                                        = 0x42,
     NOTE_G4                                         = 0x43,
-    NOTE_G4S                                        = 0x44
+    NOTE_G4S                                        = 0x44,
+    NOTE_A4                                         = 0x45
   };
 }
 

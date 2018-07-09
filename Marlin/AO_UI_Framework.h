@@ -73,20 +73,36 @@ class ScreenRef {
       type = t;
     }
 
-    void setScreen(onEntry_func_t onRefresh_ptr) {
+    uint8_t lookupScreen(onEntry_func_t onRefresh_ptr) {
       for(uint8_t type = 0; type < functionTableSize; type++) {
         if(GET_METHOD(type, onRefresh) == onRefresh_ptr) {
-          setType(type);
-          #if defined(UI_FRAMEWORK_DEBUG)
-            #if defined(SERIAL_PROTOCOLLNPAIR)
-            SERIAL_PROTOCOLLNPAIR("New screen: ",type);
-            #else
-            Serial.print("New screen: ");
-            Serial.println(type);
-            #endif
-          #endif
-          return;
+          return type;
         }
+      }
+      #if defined(UI_FRAMEWORK_DEBUG)
+        #if defined(SERIAL_PROTOCOLLNPAIR)
+        SERIAL_PROTOCOLLNPAIR("Screen not found: ", (uint16_t) onRefresh_ptr);
+        #else
+        Serial.print("Screen not found: ");
+        Serial.println((uint16_t) onRefresh_ptr, HEX);
+        #endif
+      #endif
+      return 0xFF;
+    }
+
+    void setScreen(onEntry_func_t onRefresh_ptr) {
+      uint8_t type = lookupScreen(onRefresh_ptr);
+      if(type != 0xFF) {
+        setType(type);
+        #if defined(UI_FRAMEWORK_DEBUG)
+          #if defined(SERIAL_PROTOCOLLNPAIR)
+          SERIAL_PROTOCOLLNPAIR("New screen: ",type);
+          #else
+          Serial.print("New screen: ");
+          Serial.println(type);
+          #endif
+        #endif
+        return;
       }
       #if defined(UI_FRAMEWORK_DEBUG)
         #if defined(SERIAL_PROTOCOLLNPAIR)
@@ -138,6 +154,10 @@ class ScreenStack : public ScreenRef {
 
     void pop() {
       setType(stack[0]);
+      forget();
+    }
+
+    void forget() {
       stack[0] = stack[1];
       stack[1] = stack[2];
       stack[2] = stack[3];

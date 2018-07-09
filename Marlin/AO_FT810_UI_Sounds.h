@@ -38,56 +38,79 @@
  */
 
 const PROGMEM CLCD::SoundPlayer::sound_t chimes[] = {
-  {CHIMES,  NOTE_G3,  5},
-  {CHIMES,  NOTE_E4,  5},
-  {CHIMES,  NOTE_C4,  5},
-  {SILENCE, END_SONG, 0}
+  {CHIMES,       NOTE_G3,  5},
+  {CHIMES,       NOTE_E4,  5},
+  {CHIMES,       NOTE_C4,  5},
+  {SILENCE,      END_SONG, 0}
 };
 
 const PROGMEM CLCD::SoundPlayer::sound_t sad_trombone[] = {
-  {TRUMPET, NOTE_A3S, 10},
-  {TRUMPET, NOTE_A3 , 10},
-  {TRUMPET, NOTE_G3S, 10},
-  {TRUMPET, NOTE_G3,  20},
-  {SILENCE, END_SONG, 0}
+  {TRUMPET,      NOTE_A3S, 10},
+  {TRUMPET,      NOTE_A3 , 10},
+  {TRUMPET,      NOTE_G3S, 10},
+  {TRUMPET,      NOTE_G3,  20},
+  {SILENCE,      END_SONG, 0}
 };
 
 const PROGMEM CLCD::SoundPlayer::sound_t c_maj_arpeggio[] = {
-  {GLOCKENSPIEL,    NOTE_C4,  1},
-  {GLOCKENSPIEL,    NOTE_E4,  1},
-  {GLOCKENSPIEL,    NOTE_G4,  16},
-  {SILENCE, END_SONG, 0}
+  {GLOCKENSPIEL, NOTE_C4,  1},
+  {GLOCKENSPIEL, NOTE_E4,  1},
+  {GLOCKENSPIEL, NOTE_G4,  16},
+  {SILENCE,      END_SONG, 0}
+};
+
+const PROGMEM CLCD::SoundPlayer::sound_t start_print[] = {
+  {TRUMPET,      NOTE_A3,  4},
+  {SILENCE,      REST,     1},
+  {TRUMPET,      NOTE_A3,  2},
+  {SILENCE,      REST,     1},
+  {TRUMPET,      NOTE_A3,  2},
+  {SILENCE,      REST,     1},
+  {TRUMPET,      NOTE_E4,  10},
+  {SILENCE,      END_SONG, 0}
+};
+
+const PROGMEM CLCD::SoundPlayer::sound_t card_inserted[] = {
+  {MUSIC_BOX,    NOTE_C4,  2},
+  {MUSIC_BOX,    NOTE_E4,  2},
+  {SILENCE,      END_SONG, 0}
+};
+
+const PROGMEM CLCD::SoundPlayer::sound_t card_removed[] = {
+  {MUSIC_BOX,    NOTE_E4,  2},
+  {MUSIC_BOX,    NOTE_C4,  2},
+  {SILENCE,      END_SONG, 0}
 };
 
 const PROGMEM CLCD::SoundPlayer::sound_t js_bach_joy[] = {
-  {PIANO,   NOTE_G3,  10},
-  {PIANO,   NOTE_A3,  10},
-  {PIANO,   NOTE_B3,  10},
-  {PIANO,   NOTE_D4,  10},
-  {PIANO,   NOTE_C4,  10},
-  {PIANO,   NOTE_C4,  10},
-  {PIANO,   NOTE_E4,  10},
-  {PIANO,   NOTE_D4,  10},
-  {PIANO,   NOTE_D4,  10},
-  {PIANO,   NOTE_G4 , 10},
-  {PIANO,   NOTE_F4S, 10},
-  {PIANO,   NOTE_G4,  10},
-  {PIANO,   NOTE_D4,  10},
-  {PIANO,   NOTE_B3,  10},
-  {PIANO,   NOTE_G3,  10},
-  {PIANO,   NOTE_A3,  10},
-  {PIANO,   NOTE_B3,  10},
-  {PIANO,   NOTE_C4,  10},
-  {PIANO,   NOTE_D4,  10},
-  {PIANO,   NOTE_E4,  10},
-  {PIANO,   NOTE_D4,  10},
-  {PIANO,   NOTE_C4,  10},
-  {PIANO,   NOTE_B3,  10},
-  {PIANO,   NOTE_A3,  10},
-  {PIANO,   NOTE_B3,  10},
-  {PIANO,   NOTE_G3,  10},
-  {PIANO,   NOTE_G3,  10},
-  {SILENCE, END_SONG, 0}
+  {PIANO,        NOTE_G3,  4},
+  {PIANO,        NOTE_A3,  4},
+  {PIANO,        NOTE_B3,  4},
+  {PIANO,        NOTE_D4,  4},
+  {PIANO,        NOTE_C4,  4},
+  {PIANO,        NOTE_C4,  4},
+  {PIANO,        NOTE_E4,  4},
+  {PIANO,        NOTE_D4,  4},
+  {PIANO,        NOTE_D4,  4},
+  {PIANO,        NOTE_G4 , 4},
+  {PIANO,        NOTE_F4S, 4},
+  {PIANO,        NOTE_G4,  4},
+  {PIANO,        NOTE_D4,  4},
+  {PIANO,        NOTE_B3,  4},
+  {PIANO,        NOTE_G3,  4},
+  {PIANO,        NOTE_A3,  4},
+  {PIANO,        NOTE_B3,  4},
+  {PIANO,        NOTE_C4,  4},
+  {PIANO,        NOTE_D4,  4},
+  {PIANO,        NOTE_E4,  4},
+  {PIANO,        NOTE_D4,  4},
+  {PIANO,        NOTE_C4,  4},
+  {PIANO,        NOTE_B3,  4},
+  {PIANO,        NOTE_A3,  4},
+  {PIANO,        NOTE_B3,  4},
+  {PIANO,        NOTE_G3,  4},
+  {PIANO,        NOTE_G3,  4},
+  {SILENCE,      END_SONG, 0}
 };
 
 const PROGMEM CLCD::SoundPlayer::sound_t all_instruments[] = {

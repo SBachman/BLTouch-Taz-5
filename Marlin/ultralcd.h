@@ -187,6 +187,7 @@
 
 #elif defined(LULZBOT_USE_TOUCH_UI)
   // We will use our own definitions for these functions.
+  void lcd_setstatus(const char* message, const bool persist=false);
 #else // no LCD
   inline void lcd_update() {}
   inline void lcd_init() {}

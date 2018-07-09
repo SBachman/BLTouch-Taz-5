@@ -35,7 +35,11 @@
 #define _SDVOLUME_H_
 
 #include "SdFatConfig.h"
-#include "Sd2Card.h"
+#if defined(LULZBOT_USE_USB_STICK)
+  #include "usb-flashdrive/Fake_Sd2Card.h"
+#else
+  #include "Sd2Card.h"
+#endif
 #include "SdFatStructs.h"
 
 //==============================================================================

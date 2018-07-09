@@ -73,6 +73,8 @@
   #include "mesh_bed_leveling.h"
 #endif
 
+LULZBOT_BACKLASH_MEASUREMENT_EXTERN
+
 Planner planner;
 
   // public:
@@ -707,6 +709,8 @@ void Planner::check_axes_activity() {
 
 #endif // PLANNER_LEVELING
 
+LULZBOT_BACKLASH_COMPENSATION_IMPL
+
 /**
  * Planner::_buffer_steps
  *
@@ -825,6 +829,35 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
     block->steps[X_AXIS] = labs(da);
     block->steps[Y_AXIS] = labs(db);
     block->steps[Z_AXIS] = labs(dc);
+  #endif
+
+  #if defined(LULZBOT_USE_Z_BACKLASH_COMPENSATION)
+    #if IS_CORE
+      #error Backlash compensation not supported on CORE printers
+    #endif
+
+    /* NOTE: >>>> The following code was repositioned from below, so that we can use the values it computes */
+
+    /**
+     * This part of the code calculates the total length of the movement.
+     */
+    float delta_mm[XYZE];
+    delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
+    delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
+    delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
+    delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
+
+    if (block->steps[X_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Y_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Z_AXIS] < MIN_STEPS_PER_SEGMENT) {
+      block->millimeters = FABS(delta_mm[E_AXIS]);
+    } else {
+      block->millimeters = SQRT(sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS]));
+
+      // If we make it here, at least one of the axes has more steps than
+      // MIN_STEPS_PER_SEGMENT, so the segment won't get dropped by Marlin
+      // and it is safe to apply the backlash compensation.
+      backlash_compensation(dm, dc, block, delta_mm);
+    }
+    /* NOTE: <<<< The following code was repositioned from below, so that we can use the values it computes */
   #endif
 
   block->steps[E_AXIS] = esteps;
@@ -979,59 +1012,61 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const 
   else
     NOLESS(fr_mm_s, min_travel_feedrate_mm_s);
 
-  /**
-   * This part of the code calculates the total length of the movement.
-   * For cartesian bots, the X_AXIS is the real X movement and same for Y_AXIS.
-   * But for corexy bots, that is not true. The "X_AXIS" and "Y_AXIS" motors (that should be named to A_AXIS
-   * and B_AXIS) cannot be used for X and Y length, because A=X+Y and B=X-Y.
-   * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
-   * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
-   */
-  #if IS_CORE
-    float delta_mm[Z_HEAD + 1];
-    #if CORE_IS_XY
-      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
-      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
-      delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
-      delta_mm[A_AXIS] = (da + db) * steps_to_mm[A_AXIS];
-      delta_mm[B_AXIS] = CORESIGN(da - db) * steps_to_mm[B_AXIS];
-    #elif CORE_IS_XZ
-      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
-      delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
-      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
-      delta_mm[A_AXIS] = (da + dc) * steps_to_mm[A_AXIS];
-      delta_mm[C_AXIS] = CORESIGN(da - dc) * steps_to_mm[C_AXIS];
-    #elif CORE_IS_YZ
-      delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
-      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
-      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
-      delta_mm[B_AXIS] = (db + dc) * steps_to_mm[B_AXIS];
-      delta_mm[C_AXIS] = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
-    #endif
-  #else
-    float delta_mm[XYZE];
-    delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
-    delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
-    delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
-  #endif
-  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
-
-  if (block->steps[X_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Y_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Z_AXIS] < MIN_STEPS_PER_SEGMENT) {
-    block->millimeters = FABS(delta_mm[E_AXIS]);
-  }
-  else {
-    block->millimeters = SQRT(
+  #if !defined(LULZBOT_USE_Z_BACKLASH_COMPENSATION)
+    /**
+     * This part of the code calculates the total length of the movement.
+     * For cartesian bots, the X_AXIS is the real X movement and same for Y_AXIS.
+     * But for corexy bots, that is not true. The "X_AXIS" and "Y_AXIS" motors (that should be named to A_AXIS
+     * and B_AXIS) cannot be used for X and Y length, because A=X+Y and B=X-Y.
+     * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
+     * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
+     */
+    #if IS_CORE
+      float delta_mm[Z_HEAD + 1];
       #if CORE_IS_XY
-        sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_AXIS])
+        delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
+        delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
+        delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
+        delta_mm[A_AXIS] = (da + db) * steps_to_mm[A_AXIS];
+        delta_mm[B_AXIS] = CORESIGN(da - db) * steps_to_mm[B_AXIS];
       #elif CORE_IS_XZ
-        sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_HEAD])
+        delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
+        delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
+        delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
+        delta_mm[A_AXIS] = (da + dc) * steps_to_mm[A_AXIS];
+        delta_mm[C_AXIS] = CORESIGN(da - dc) * steps_to_mm[C_AXIS];
       #elif CORE_IS_YZ
-        sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_HEAD])
-      #else
-        sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
+        delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
+        delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
+        delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
+        delta_mm[B_AXIS] = (db + dc) * steps_to_mm[B_AXIS];
+        delta_mm[C_AXIS] = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
       #endif
-    );
-  }
+    #else
+      float delta_mm[XYZE];
+      delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
+      delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
+      delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
+    #endif
+    delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
+
+    if (block->steps[X_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Y_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Z_AXIS] < MIN_STEPS_PER_SEGMENT) {
+      block->millimeters = FABS(delta_mm[E_AXIS]);
+    }
+    else {
+      block->millimeters = SQRT(
+        #if CORE_IS_XY
+          sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_AXIS])
+        #elif CORE_IS_XZ
+          sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_HEAD])
+        #elif CORE_IS_YZ
+          sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_HEAD])
+        #else
+          sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
+        #endif
+      );
+    }
+  #endif
   const float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate inverse time for this move. No divide by zero due to previous checks.

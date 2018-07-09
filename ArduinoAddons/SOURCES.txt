@@ -1,0 +1,6 @@
+Source Path:                                            Repository:                                        License:
+ArduinoAddons/arduino-1.8.3                             https://github.com/arduino/Arduino/                GPL v2.1 or later/LGPL v2.1
+ArduinoAddons/arduino-1.8.3/libraries/TMC2130Stepper    https://github.com/teemuatlut/TMC2130Stepper       AGPL v3
+ArduinoAddons/arduino-1.8.3/libraries/U8glib            https://github.com/olikraus/u8glib                 new-bsd
+ArduinoAddons/arduino-1.8.3/libraries/Adafruit_NeoPixel https://github.com/adafruit/Adafruit_NeoPixel      GPL v3
+ArduinoAddons/arduino-1.8.3/libraries/LiquidCrystal     https://github.com/arduino-libraries/LiquidCrystal GPL v2.1

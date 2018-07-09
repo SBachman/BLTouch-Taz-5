@@ -28,7 +28,12 @@
  */
 #include "MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if defined(LULZBOT_USE_USB_STICK)
+  #undef MACROS_H
+  #include "usb-flashdrive/Fake_Sd2Card_impl.h"
+#endif
+
+#if ENABLED(SDSUPPORT) && not defined(LULZBOT_USE_USB_STICK)
 
 #include "Sd2Card.h"
 
