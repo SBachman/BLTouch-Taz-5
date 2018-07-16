@@ -1667,7 +1667,7 @@
             SERIAL_ERRORLNPGM(MSG_REWIPE); \
             LCD_MESSAGEPGM(MSG_REWIPE); \
             do_blocking_move_to_z(10, MMM_TO_MMS(speed)); /* raise nozzle */ \
-            Nozzle::clean(0, 12, 0, 0);                   /* wipe nozzle */ \
+/*            Nozzle::clean(0, 12, 0, 0);                   /* wipe nozzle */ \
         }
 
     #define LULZBOT_G29_COMMAND \
