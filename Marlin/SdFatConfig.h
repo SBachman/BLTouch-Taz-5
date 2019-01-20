@@ -62,11 +62,6 @@
 #define ENDL_CALLS_FLUSH 0
 
 /**
- * Allow use of deprecated functions if ALLOW_DEPRECATED_FUNCTIONS is nonzero
- */
-#define ALLOW_DEPRECATED_FUNCTIONS 1
-
-/**
  * Allow FAT12 volumes if FAT12_SUPPORT is nonzero.
  * FAT12 has not been well tested.
  */
@@ -112,10 +107,6 @@
 /**
  * Defines for 8.3 and long (vfat) filenames
  */
-  #if defined(LULZBOT_SCROLL_LONG_FILE_NAMES)
-  #define MAX_VFAT_ENTRIES (5)
-  #else
-  #endif
 
 #define FILENAME_LENGTH 13 // Number of UTF-16 characters per entry
 

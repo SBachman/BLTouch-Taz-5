@@ -47,6 +47,10 @@ class NoisySerialConnection:
   def in_waiting(self):
     return self.serial.in_waiting
 
+  @property
+  def out_waiting(self):
+    return self.serial.out_waiting
+
   def flush(self):
     self.serial.flush()
 

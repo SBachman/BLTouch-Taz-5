@@ -47,3 +47,7 @@ class LoggingSerialConnection:
   @property
   def in_waiting(self):
     return self.serial.in_waiting
+
+  @property
+  def out_waiting(self):
+    return self.serial.out_waiting

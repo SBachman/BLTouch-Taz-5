@@ -35,7 +35,7 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "1.1.8"
+  #define SHORT_BUILD_VERSION "1.1.9"
 
   /**
    * Verbose version identifier which should contain a reference to the location
@@ -57,8 +57,8 @@
    * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option on
    * the configuration files.
    */
-  #define REQUIRED_CONFIGURATION_H_VERSION 010107
-  #define REQUIRED_CONFIGURATION_ADV_H_VERSION 010107
+  #define REQUIRED_CONFIGURATION_H_VERSION 010109
+  #define REQUIRED_CONFIGURATION_ADV_H_VERSION 010109
 
   /**
    * The protocol for communication to the host. Protocol indicates communication

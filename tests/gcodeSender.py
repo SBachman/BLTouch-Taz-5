@@ -50,18 +50,19 @@ def send_gcode_test(filename, serial):
     serial.sendCmdReliable(line)
     while(not serial.clearToSend()):
       serial.readline()
+
     if(i % 1000 == 0):
       print("Progress: %d" % (i*100/len(gcode)), end='\r')
       sys.stdout.flush()
 
 parser = argparse.ArgumentParser(description='''sends gcode to a printer while injecting errors to test error recovery.''')
-parser.add_argument('-p', '--port',   help='Serial port.', default='/dev/ttyACM1')
-parser.add_argument('-f', '--fake',   help='Use a fake Marlin simulation instead of serial port, for self-testing.', action='store_false', dest='port')
-parser.add_argument('-e', '--errors', help='Corrupt 1 out N lines written to exercise error recovery.', default='0', type=int)
+parser.add_argument('-p', '--port',       help='Serial port.', default='/dev/ttyACM1')
+parser.add_argument('-f', '--fake',       help='Use a fake Marlin simulation instead of serial port, for self-testing.', action='store_false', dest='port')
+parser.add_argument('-e', '--errors',     help='Corrupt 1 out N lines written to exercise error recovery.', default='0', type=int)
 parser.add_argument('-r', '--readerrors', help='Corrupt 1 out N lines read to exercise error recovery.', default='0', type=int)
-parser.add_argument('-l', '--log',    help='Write log file.')
-parser.add_argument('-b', '--baud',   help='Sets the baud rate for the serial port.', default='115000', type=int)
-parser.add_argument('filename',       help='file containing gcode, or TEST for synthetic non-printing GCODE')
+parser.add_argument('-l', '--log',        help='Write log file.')
+parser.add_argument('-b', '--baud',       help='Sets the baud rate for the serial port.', default='115000', type=int)
+parser.add_argument('filename',           help='file containing gcode, or TEST for synthetic non-printing GCODE')
 args = parser.parse_args()
 
 print()
@@ -92,6 +93,9 @@ print()
 
 def onResendCallback(line):
   print("Resending from: %d" % (line))
-proto = MarlinSerialProtocol(sio, onResendCallback)
+def onNotificationCallback(status):
+  print(status)
+
+proto = MarlinSerialProtocol(sio, onResendCallback, onNotificationCallback)
 send_gcode_test(args.filename, proto)
 proto.close()

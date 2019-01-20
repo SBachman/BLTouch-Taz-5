@@ -28,12 +28,7 @@
  */
 #include "MarlinConfig.h"
 
-#if defined(LULZBOT_USE_USB_STICK)
-  #undef MACROS_H
-  #include "usb-flashdrive/Fake_Sd2Card_impl.h"
-#endif
-
-#if ENABLED(SDSUPPORT) && not defined(LULZBOT_USE_USB_STICK)
+#if ENABLED(SDSUPPORT)
 
 #include "Sd2Card.h"
 
@@ -302,7 +297,7 @@ bool Sd2Card::eraseSingleBlockEnable() {
  * \return true for success, false for failure.
  * The reason for failure can be determined by calling errorCode() and errorData().
  */
-bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
+bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute
@@ -410,21 +405,22 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
       else if (readData(dst, 512))
         return true;
 
+      chipSelectHigh();
       if (!--retryCnt) break;
 
-      chipSelectHigh();
       cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.
       errorCode_ = 0;
     }
+    return false;
   #else
-    if (cardCommand(CMD17, blockNumber))
+    if (cardCommand(CMD17, blockNumber)) {
       error(SD_CARD_ERROR_CMD17);
+      chipSelectHigh();
+      return false;
+    }
     else
       return readData(dst, 512);
   #endif
-
-  chipSelectHigh();
-  return false;
 }
 
 /**

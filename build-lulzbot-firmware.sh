@@ -17,16 +17,13 @@
 # The following variables list the models and toolheads to build for:
 
 MINI_MODELS="Gladiola_Mini Gladiola_MiniLCD"
-MINI_TOOLHEADS="Gladiola_SingleExtruder Albatross_Flexystruder Finch_Aerostruder"
+MINI_TOOLHEADS="Gladiola_SingleExtruder Albatross_Flexystruder Finch_Aerostruder AchemonSphinx_SmallLayer CecropiaSilk_SingleExtruderAeroV2 BandedTiger_HardenedSteel DingyCutworm_HardenedSteelPlus"
 
 TAZ_MODELS="Juniper_TAZ5 Oliveoil_TAZ6"
-TAZ_TOOLHEADS="Tilapia_SingleExtruder Kanyu_Flexystruder Opah_Moarstruder Javelin_DualExtruderV2 Longfin_FlexyDually Yellowfin_DualExtruderV3 Angelfish_Aerostruder"
+TAZ_TOOLHEADS="Tilapia_SingleExtruder Kanyu_Flexystruder Opah_Moarstruder Javelin_DualExtruderV2 Longfin_FlexyDually Yellowfin_DualExtruderV3 Angelfish_Aerostruder AchemonSphinx_SmallLayer CecropiaSilk_SingleExtruderAeroV2 BandedTiger_HardenedSteel DingyCutworm_HardenedSteelPlus"
 
 MINI2_MODELS="Hibiscus_Mini2"
-MINI2_TOOLHEADS="Finch_AerostruderV2"
-
-TAZ7_MODELS="Quiver_TAZ7"
-TAZ7_TOOLHEADS="Angelfish_Aerostruder"
+MINI2_TOOLHEADS="AchemonSphinx_SmallLayer CecropiaSilk_SingleExtruderAeroV2 BandedTiger_HardenedSteel DingyCutworm_HardenedSteelPlus"
 
 ####
 # usage
@@ -208,13 +205,6 @@ build_for_taz() {
   for model in $TAZ_MODELS
   do
     for toolhead in $TAZ_TOOLHEADS
-    do
-      build_firmware ${model} ${toolhead}
-    done
-  done
-  for model in $TAZ7_MODELS
-  do
-    for toolhead in $TAZ7_TOOLHEADS
     do
       build_firmware ${model} ${toolhead}
     done
