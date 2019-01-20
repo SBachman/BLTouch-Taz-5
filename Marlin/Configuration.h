@@ -578,7 +578,7 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING LULZBOT_X_MIN_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING LULZBOT_Y_MIN_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING LULZBOT_Z_MIN_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING LULZBOT_X_MAX_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING LULZBOT_Y_MAX_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING LULZBOT_Z_MAX_ENDSTOP_INVERTING // set to true to invert the logic of the endstop.
@@ -1062,7 +1062,7 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 #define AUTO_BED_LEVELING_LINEAR LULZBOT_AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
@@ -1070,7 +1070,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-#define RESTORE_LEVELING_AFTER_G28 LULZBOT_RESTORE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28 
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -1315,7 +1315,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
-#define EEPROM_SETTINGS LULZBOT_EEPROM_SETTINGS // Enable for M500 and M501 commands
+#define EEPROM_SETTINGS   // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
