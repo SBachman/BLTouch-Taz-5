@@ -1,6 +1,26 @@
-Source Path:                                            Repository:                                        Version:        License:
-ArduinoAddons/arduino-1.8.5                             https://github.com/arduino/Arduino/                v1.8.5          GPL v2.1 or later/LGPL v2.1
-ArduinoAddons/arduino-1.8.5/libraries/TMC2130Stepper    https://github.com/teemuatlut/TMC2130Stepper       v2.3.0          AGPL v3
-ArduinoAddons/arduino-1.8.5/libraries/U8glib            https://github.com/olikraus/u8glib                 master-f2e0c70  new-bsd
-ArduinoAddons/arduino-1.8.5/libraries/Adafruit_NeoPixel https://github.com/adafruit/Adafruit_NeoPixel      v1.1.6          GPL v3
-ArduinoAddons/arduino-1.8.5/libraries/LiquidCrystal     https://github.com/arduino-libraries/LiquidCrystal master-a89b4d4  GPL v2.1
+
+
+ArduinoAddons/arduino-1.8.5                                            URL:        https://github.com/arduino/Arduino
+                                                                       Version:    v1.8.5
+                                                                       License:    GPL v2.1 or later/LGPL v2.1
+
+ArduinoAddons/arduino-1.8.5/libraries/TMC2130Stepper                   URL:        https://github.com/teemuatlut/TMC2130Stepper
+                                                                       Version:    v2.3.0
+                                                                       License:    AGPL v3
+
+ArduinoAddons/arduino-1.8.5/libraries/U8glib                           URL:        https://github.com/olikraus/u8glib
+                                                                       Version:    master-f2e0c70
+                                                                       License:    new-bsd
+
+ArduinoAddons/arduino-1.8.5/libraries/Adafruit_NeoPixel                URL:        https://github.com/adafruit/Adafruit_NeoPixel
+                                                                       Version:    v1.1.6
+                                                                       License:    GPL v3
+
+ArduinoAddons/arduino-1.8.5/libraries/LiquidCrystal                    URL:        https://github.com/arduino-libraries/LiquidCrystal
+                                                                       Version:    master-a89b4d4
+                                                                       License:    GPL v2.1
+
+ArduinoAddons/arduino-1.8.5/packages/ultimachine/hardware/sam/1.6.9-b  URL:        https://github.com/ultimachine/ArchimAddons/files/628295/archim-1.6.9-b.zip
+                                                                       Version:    1.6.9-b
+                                                                       License:    LICENSES/LICENSE.sam
+                                                                       License:    LICENSES/LICENSE.lufa

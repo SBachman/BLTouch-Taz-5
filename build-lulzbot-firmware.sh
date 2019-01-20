@@ -16,14 +16,22 @@
 ####
 # The following variables list the models and toolheads to build for:
 
+UNIVERSAL_TOOLHEADS="AchemonSphinx_SmallLayer CecropiaSilk_SingleExtruderAeroV2 BandedTiger_HardenedSteel DingyCutworm_HardenedSteelPlus"
+
 MINI_MODELS="Gladiola_Mini Gladiola_MiniLCD"
-MINI_TOOLHEADS="Gladiola_SingleExtruder Albatross_Flexystruder Finch_Aerostruder AchemonSphinx_SmallLayer CecropiaSilk_SingleExtruderAeroV2 BandedTiger_HardenedSteel DingyCutworm_HardenedSteelPlus"
+MINI_TOOLHEADS="Gladiola_SingleExtruder Albatross_Flexystruder Finch_Aerostruder $UNIVERSAL_TOOLHEADS"
 
 TAZ_MODELS="Juniper_TAZ5 Oliveoil_TAZ6"
-TAZ_TOOLHEADS="Tilapia_SingleExtruder Kanyu_Flexystruder Opah_Moarstruder Javelin_DualExtruderV2 Longfin_FlexyDually Yellowfin_DualExtruderV3 Angelfish_Aerostruder AchemonSphinx_SmallLayer CecropiaSilk_SingleExtruderAeroV2 BandedTiger_HardenedSteel DingyCutworm_HardenedSteelPlus"
+TAZ_TOOLHEADS="Tilapia_SingleExtruder Kanyu_Flexystruder Opah_Moarstruder Javelin_DualExtruderV2 Longfin_FlexyDually Yellowfin_DualExtruderV3 Angelfish_Aerostruder $UNIVERSAL_TOOLHEADS"
+
+TAZ7_MODELS="Quiver_TAZPro"
+TAZ7_TOOLHEADS="Quiver_DualExtruder $UNIVERSAL_TOOLHEADS"
 
 MINI2_MODELS="Hibiscus_Mini2"
-MINI2_TOOLHEADS="AchemonSphinx_SmallLayer CecropiaSilk_SingleExtruderAeroV2 BandedTiger_HardenedSteel DingyCutworm_HardenedSteelPlus"
+MINI2_TOOLHEADS="$UNIVERSAL_TOOLHEADS"
+
+#TAZ7_MODELS="Quiver_TAZPro"
+#TAZ7_TOOLHEADS="Angelfish_Aerostruder"
 
 ####
 # usage
@@ -42,8 +50,49 @@ usage() {
   echo
   echo "   -c|--config       Save the values of 'Configuration.h' and 'Configuration_adv.h'"
   echo "                     that are used for the specified printer and toolhead."
+  echo "   -n|--dry-run      Just print commands, don't execute"
   echo
   exit
+}
+
+####
+# compile_dependencies <printer>
+#
+# Compiles dependencies for the specific printer
+#
+compile_dependencies() {
+  printer=$1   ; shift 1
+
+  get_arch_info $printer
+
+  case $printer in
+    Quiver_TAZPro)
+      ARCHIM_SRC="ArduinoAddons/arduino-1.8.5/packages/ultimachine/hardware/sam/1.6.9-b"
+      (cd "$ARCHIM_SRC/system/libsam/build_gcc"; ARM_GCC_TOOLCHAIN="$gcc_path" make)
+      cp -u $ARCHIM_SRC/variants/arduino_due_x/libsam_sam3x8e_gcc_rel.a     $ARCHIM_SRC/variants/archim/libsam_sam3x8e_gcc_rel.a
+      cp -u $ARCHIM_SRC/variants/arduino_due_x/libsam_sam3x8e_gcc_rel.a.txt $ARCHIM_SRC/variants/archim/libsam_sam3x8e_gcc_rel.a.txt
+      ;;
+    *) ;;
+  esac
+}
+
+####
+# compile_firmware <printer> <toolhead> [makeopts]
+#
+# Compiles firmware for the specified printer and toolhead
+#
+get_arch_info() {
+  printer=$1   ; shift 1
+  case $printer in
+    Quiver_TAZPro)
+      gcc_path=$ARM_TOOLS_PATH
+      format=bin
+      ;;
+    *)
+      gcc_path=$AVR_TOOLS_PATH
+      format=hex
+      ;;
+  esac
 }
 
 ####
@@ -52,9 +101,10 @@ usage() {
 # Compiles firmware for the specified printer and toolhead
 #
 compile_firmware() {
-  printer=$1  ; shift 1
-  toolhead=$1 ; shift 1
-  (cd Marlin; make clean; make AVR_TOOLS_PATH=${AVR_TOOLS_PATH}/ MODEL=${printer} TOOLHEAD=${toolhead} $*) || exit
+  printer=$1   ; shift 1
+  toolhead=$1  ; shift 1
+  # Build the firmware
+  (cd Marlin; make clean; make $MAKE_FLAGS AVR_TOOLS_PATH=${gcc_path}/ MODEL=${printer} TOOLHEAD=${toolhead} $*) || exit
 }
 
 ####
@@ -102,76 +152,86 @@ build_config() {
 # Compiles firmware for the specified printer and toolhead
 #
 build_firmware() {
+  printer=$1   ; shift 1
+  toolhead=$1  ; shift 1
+  get_arch_info $printer
   if [ $MAKE_HASHES ]; then
-    generate_bare_checksum $1 $2
+    generate_bare_checksum $printer $toolhead
   fi
   echo
-  echo Building for $1 and $2
+  echo Building for $printer and $toolhead
   echo
-  compile_firmware $1 $2
+  compile_firmware $printer $toolhead
   if [ $MAKE_HASHES ]; then
     record_checksum Marlin/applet/*.hex build/md5sums-full
   fi
-  mv Marlin/applet/*.hex build
+  if [ $DRY_RUN ]; then
+    return
+  fi
+  mv Marlin/applet/*.$format build
+  chmod a-x build/*
   if [ $GENERATE_CONFIG ]; then
-    build_config $1 $2
+    build_config $printer $toolhead
     mv Marlin/applet/*.config build
   fi
 }
 
 ####
-# check_tool <exec_name>
+# check_tool <path> <exec_name>
 #
-# Checks whether a tool exists in the AVR_TOOLS_PATH
+# Checks whether a tool exists in path
 #
 check_tool() {
-  if [ ! -x "$AVR_TOOLS_PATH/$1" ]; then
-    echo Cannot locate $1 in $AVR_TOOLS_PATH.
+  if [ ! -x "$1/$2" ]; then
+    echo Cannot locate $2 in $1.
     exit 1
   fi
 }
 
 ####
-# locate_avr_tools
+# locate_tools <path_var> <prefix>
 #
-# Attempts to locate the avr tools, otherwise prompts
-# the user for a location.
+# Attempts to locate a tool, otherwise prompts
+# the user for a location. The found path is
+# stored in <path_var>
 #
-locate_avr_tools() {
-  AVR_OBJCOPY=`which avr-objcopy`
+locate_tools() {
+  DEST_VAR=$1
+  TOOL_BINARY=`which $2-objcopy`
   if [ $? -eq 0 ]; then
-    AVR_TOOLS_PATH=`dirname $AVR_OBJCOPY`
+    TOOLS_PATH=`dirname $TOOL_BINARY`
   fi
-  while [ ! -x $AVR_TOOLS_PATH/avr-gcc ]
+  while [ ! -x $TOOLS_PATH/$2-objcopy ]
   do
     echo
-    echo avr-gcc tools not found!
+    echo $2-objcopy not found!
     echo
-    read -p "Type path to avr-gcc tools: " AVR_TOOLS_PATH
-    if [ -z $AVR_TOOLS_PATH ]; then
+    read -p "Type path to $2 tools: " TOOLS_PATH
+    if [ -z $TOOLS_PATH ]; then
       echo Aborting.
       exit
     fi
   done
+  eval "$DEST_VAR=$TOOLS_PATH"
 }
 
 ####
-# check_avr_tools
+# check_tools <path> <prefix>
 #
 # Verify that all the AVR tools we need exist in the located
 # directory.
 #
-check_avr_tools() {
+check_tools() {
   echo
-  echo Using $AVR_TOOLS_PATH for avr-gcc tools.
+  echo Using $1 for $2 tools.
   echo
 
-  check_tool avr-gcc
-  check_tool avr-objcopy
-  check_tool avr-g++
-  check_tool avr-objdump
-  check_tool avr-ar
-  check_tool avr-size
+  check_tool $1 $2-gcc
+  check_tool $1 $2-objcopy
+  check_tool $1 $2-g++
+  check_tool $1 $2-objdump
+  check_tool $1 $2-ar
+  check_tool $1 $2-size
 }
 
 ####
@@ -205,6 +265,13 @@ build_for_taz() {
   for model in $TAZ_MODELS
   do
     for toolhead in $TAZ_TOOLHEADS
+    do
+      build_firmware ${model} ${toolhead}
+    done
+  done
+  for model in $TAZ7_MODELS
+  do
+    for toolhead in $TAZ7_TOOLHEADS
     do
       build_firmware ${model} ${toolhead}
     done
@@ -245,6 +312,11 @@ do
       GENERATE_CONFIG=1
       shift
       ;;
+    -n|--dry-run)
+      MAKE_FLAGS=-n
+      DRY_RUN=1
+      shift
+      ;;
     -*|--*)
       usage
       ;;
@@ -254,16 +326,23 @@ do
   esac
 done
 
-locate_avr_tools
-check_avr_tools
+locate_tools AVR_TOOLS_PATH avr
+locate_tools ARM_TOOLS_PATH arm-none-eabi
+
+check_tools $AVR_TOOLS_PATH avr
+check_tools $ARM_TOOLS_PATH arm-none-eabi
+
+MAKE_FLAGS="$MAKE_FLAGS -j $(grep -c ^processor /proc/cpuinfo)"
 
 rm -rf build
 mkdir  build
 
 if [ $# -eq 2 ]
 then
+  compile_dependencies $1
   build_firmware $1 $2
 else
+  compile_dependencies Quiver_TAZPro
   build_for_mini
   build_for_taz
 fi

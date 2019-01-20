@@ -1,7 +1,7 @@
 # A helper script file that updates the FW version number, tags and pushes it.
 
 # Get the current version number
-THEIR_VERSION=`grep -m1 "#define SHORT_BUILD_VERSION " Marlin/Version.h | cut -d \" -f 2`
+THEIR_VERSION=`grep -m1 "#define SHORT_BUILD_VERSION " Marlin/src/inc/Version.h | cut -d \" -f 2`
 LULZ_VERSION=`grep -m1 "#define LULZBOT_FW_VERSION " Marlin/Conditionals_LulzBot.h | cut -d \" -f 2 | cut -d . -f 2`
 NEXT_VERSION=`expr $LULZ_VERSION + 1`
 
