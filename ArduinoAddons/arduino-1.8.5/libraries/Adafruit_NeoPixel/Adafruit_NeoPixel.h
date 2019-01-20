@@ -135,9 +135,7 @@ class Adafruit_NeoPixel {
     updateType(neoPixelType t);
   uint8_t
    *getPixels(void) const,
-    getBrightness(void) const,
-    sine8(uint8_t) const,
-    gamma8(uint8_t) const;
+    getBrightness(void) const;
   int8_t
     getPin(void) { return pin; };
   uint16_t
