@@ -1369,8 +1369,8 @@
 
 // Enable linear advance, but leave K at zero so
 // it is not used unless the user requests it.
-//#define LULZBOT_LIN_ADVANCE
-//#define LULZBOT_LIN_ADVANCE_K 0.0
+#define LULZBOT_LIN_ADVANCE
+#define LULZBOT_LIN_ADVANCE_K 0.0
 
 #define LULZBOT_NO_VOLUMETRICS
 
