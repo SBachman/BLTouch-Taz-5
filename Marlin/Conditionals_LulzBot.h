@@ -1943,13 +1943,13 @@
 
 #elif defined(LULZBOT_IS_TAZ) && defined(LULZBOT_USE_Z_SCREW)
     #if LULZBOT_EXTRUDERS > 1 && defined(LULZBOT_DISTINCT_E_FACTORS)
-        #define LULZBOT_DEFAULT_MAX_FEEDRATE          {300, 300, 3, 25, 25}      // (mm/sec)
-        #define LULZBOT_DEFAULT_MAX_ACCELERATION      {9000,9000,100,9000, 9000}
+        #define LULZBOT_DEFAULT_MAX_FEEDRATE          {300, 300, 6, 25, 25}      // (mm/sec) value of 6 assumes upgraded z motors otherwise use 3
+        #define LULZBOT_DEFAULT_MAX_ACCELERATION      {3000,3000,100,1000,1000} //tuned values
     #else
         #define LULZBOT_DEFAULT_MAX_FEEDRATE          {300, 300, 3, 25}      // (mm/sec)
         #define LULZBOT_DEFAULT_MAX_ACCELERATION      {9000,9000,100,9000}
     #endif
-    #define LULZBOT_Z_STEPS                       1600
+    #define LULZBOT_Z_STEPS                       1601.27 //tuned value - orignial is 1600
     #define LULZBOT_Z_MICROSTEPS                  16
 
 #elif defined(LULZBOT_IS_TAZ) && defined(LULZBOT_USE_Z_BELT)
