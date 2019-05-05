@@ -1112,7 +1112,7 @@
 
   // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION 5
-  #define RIGHT_PROBE_BED_POSITION 275
+  #define RIGHT_PROBE_BED_POSITION 265
   #define FRONT_PROBE_BED_POSITION 5
   #define BACK_PROBE_BED_POSITION 245
 
@@ -1123,7 +1123,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID
+    #define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
