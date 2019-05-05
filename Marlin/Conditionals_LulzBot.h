@@ -1137,9 +1137,13 @@
 
 #if defined(LULZBOT_AO_Hexagon)
     // LulzBot AO-Hexagon (30w)
-    #define LULZBOT_DEFAULT_Kp 28.79
-    #define LULZBOT_DEFAULT_Ki 1.91
-    #define LULZBOT_DEFAULT_Kd 108.51
+    //#define LULZBOT_DEFAULT_Kp 28.79
+    //#define LULZBOT_DEFAULT_Ki 1.91
+    //#define LULZBOT_DEFAULT_Kd 108.51
+    // LulzBot AO-Hexagon (40w @ 240c)    
+    #define LULZBOT_DEFAULT_Kp 26.17
+    #define LULZBOT_DEFAULT_Ki 2.13
+    #define LULZBOT_DEFAULT_Kd 80.40
 #endif /* LULZBOT_AO_Hexagon */
 
 #if defined(LULZBOT_E3D_Titan_Aero_V6)
