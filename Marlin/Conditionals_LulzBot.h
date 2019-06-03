@@ -1953,7 +1953,7 @@
         #define LULZBOT_DEFAULT_MAX_FEEDRATE          {300, 300, 3, 25}      // (mm/sec)
         #define LULZBOT_DEFAULT_MAX_ACCELERATION      {9000,9000,100,9000}
     #endif
-    #define LULZBOT_Z_STEPS                       1601.27 //tuned value - orignial is 1600
+    #define LULZBOT_Z_STEPS                       1600
     #define LULZBOT_Z_MICROSTEPS                  16
 
 #elif defined(LULZBOT_IS_TAZ) && defined(LULZBOT_USE_Z_BELT)
