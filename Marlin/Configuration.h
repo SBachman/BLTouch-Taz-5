@@ -830,8 +830,10 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER -32 // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -30 // Y offset: -front +behind [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER +6 // X offset: -left  +right  [of the nozzle] //aerostruder//
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -35 // Y offset: -front +behind [the nozzle] //aerostruder//
+//stock tool// #define X_PROBE_OFFSET_FROM_EXTRUDER -32 // X offset: -left  +right  [of the nozzle]
+//stock tool// #define Y_PROBE_OFFSET_FROM_EXTRUDER -30 // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_Z_PROBE_OFFSET_FROM_EXTRUDER // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
@@ -1107,8 +1109,8 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 6
-  #define GRID_MAX_POINTS_Y 6
+  #define GRID_MAX_POINTS_X 9
+  #define GRID_MAX_POINTS_Y 9
 
   // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION 20
