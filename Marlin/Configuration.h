@@ -830,8 +830,8 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER +6 // X offset: -left  +right  [of the nozzle] //aerostruder//
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -35 // Y offset: -front +behind [the nozzle] //aerostruder//
+#define X_PROBE_OFFSET_FROM_EXTRUDER +3 // X offset: -left  +right  [of the nozzle] //aerostruder//
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -31 // Y offset: -front +behind [the nozzle] //aerostruder//
 //stock tool// #define X_PROBE_OFFSET_FROM_EXTRUDER -32 // X offset: -left  +right  [of the nozzle]
 //stock tool// #define Y_PROBE_OFFSET_FROM_EXTRUDER -30 // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER LULZBOT_Z_PROBE_OFFSET_FROM_EXTRUDER // Z offset: -below +above  [the nozzle]
@@ -851,7 +851,7 @@
 // The number of probes to perform at each point.
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
-#define MULTIPLE_PROBING LULZBOT_MULTIPLE_PROBING
+#define MULTIPLE_PROBING 3
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -1063,7 +1063,7 @@
  *   With an LCD controller the process is guided step-by-step.
  */
 //#define AUTO_BED_LEVELING_3POINT
-#define AUTO_BED_LEVELING_LINEAR LULZBOT_AUTO_BED_LEVELING_LINEAR
+//#define AUTO_BED_LEVELING_LINEAR LULZBOT_AUTO_BED_LEVELING_LINEAR
 #define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
@@ -1085,7 +1085,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  //#define ENABLE_LEVELING_FADE_HEIGHT
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
@@ -1109,14 +1109,14 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 9
-  #define GRID_MAX_POINTS_Y 9
+  #define GRID_MAX_POINTS_X 5
+  #define GRID_MAX_POINTS_Y 5
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 5
+  #define LEFT_PROBE_BED_POSITION 10
   #define RIGHT_PROBE_BED_POSITION 265
   #define FRONT_PROBE_BED_POSITION 5
-  #define BACK_PROBE_BED_POSITION 245
+  #define BACK_PROBE_BED_POSITION 240
 
   // Probe along the Y axis, advancing X after each column
   #define PROBE_Y_FIRST LULZBOT_PROBE_Y_FIRST

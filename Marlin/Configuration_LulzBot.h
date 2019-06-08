@@ -29,7 +29,8 @@
       Javelin_DualExtruderV2            // Dual Extruder v2 (Javelin)
       Longfin_FlexyDually               // FlexyDually (Longfin)
       Yellowfin_DualExtruderV3          // Dual Extruder v3 (Yellowfin)
-
+      Angelfish_Aerostruder             // Aerostruder v1 (Angelfish)
+	  
    Universal Toolheads (Mini/Mini 2/TAZ):
       CecropiaSilk_SingleExtruderAeroV2 // SE  | 0.5 mm (Aero v2)
       AchemonSphinx_SmallLayer          // SL  | 0.25 mm (Micro)
@@ -46,6 +47,6 @@
 
 #define LULZBOT_Juniper_TAZ5
 //#define TOOLHEAD_CecropiaSilk_AerostruderV2
-#define TOOLHEAD_Tilapia_SingleExtruder
+#define TOOLHEAD_Angelfish_Aerostruder
 
 #endif /* CONFIGURATION_LULZBOT */
