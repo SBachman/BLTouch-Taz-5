@@ -1109,7 +1109,7 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 9
+  #define GRID_MAX_POINTS_X 9 //default is 3x3, my bed had issues so I used a larger grid
   #define GRID_MAX_POINTS_Y 9
 
   // Set the boundaries for probing (where the probe can reach).
