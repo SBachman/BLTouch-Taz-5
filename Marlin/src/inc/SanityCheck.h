@@ -1099,10 +1099,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
     static_assert(LEFT_PROBE_BED_POSITION < RIGHT_PROBE_BED_POSITION, "LEFT_PROBE_BED_POSITION must be less than RIGHT_PROBE_BED_POSITION.");
     static_assert(FRONT_PROBE_BED_POSITION < BACK_PROBE_BED_POSITION, "FRONT_PROBE_BED_POSITION must be less than BACK_PROBE_BED_POSITION.");
-    static_assert(LEFT_PROBE_BED_POSITION >= MIN_PROBE_X, "LEFT_PROBE_BED_POSITION is outside the probe region.");
-    static_assert(RIGHT_PROBE_BED_POSITION <= MAX_PROBE_X, "RIGHT_PROBE_BED_POSITION is outside the probe region.");
-    static_assert(FRONT_PROBE_BED_POSITION >= MIN_PROBE_Y, "FRONT_PROBE_BED_POSITION is outside the probe region.");
-    static_assert(BACK_PROBE_BED_POSITION <= MAX_PROBE_Y, "BACK_PROBE_BED_POSITION is outside the probe region.");
+    static_assert(LEFT_PROBE_BED_POSITION > MIN_PROBE_X, "LEFT_PROBE_BED_POSITION is outside the probe region.");
+    static_assert(RIGHT_PROBE_BED_POSITION < MAX_PROBE_X, "RIGHT_PROBE_BED_POSITION is outside the probe region.");
+    static_assert(FRONT_PROBE_BED_POSITION > MIN_PROBE_Y, "FRONT_PROBE_BED_POSITION is outside the probe region.");
+    static_assert(BACK_PROBE_BED_POSITION < MAX_PROBE_Y, "BACK_PROBE_BED_POSITION is outside the probe region.");
 
   #endif // AUTO_BED_LEVELING_3POINT
 
